@@ -176,30 +176,39 @@ setTimeout(() => {
 }, 60000 - Date.now() % 60000);
 </script>
 
-<label for="source-input">Source</label>
-<select bind:value={source} onchange={changeSource} id="source-input">
-    <option value="manual">Manual</option>
-    <option value="timetable">Timetable</option>
-    <option value="times-api">Times API</option>
-    <option value="trainstatuses-api">Train Statuses API</option>
-</select>
-{#if source !== "manual"}
-    <label for="trn-input">TRN</label>
-    <select id="trn-input" bind:value={trn} onchange={changeTRN}>
-        {#each sourcedData.possibleTRNs as trn}
-            <option value={trn}>{trn}</option>
-        {/each}
-    </select>
-{/if}
-{#if source === "timetable"}
-    <label for="sync">Sync</label>
-    <input id="sync" type="checkbox"
-           bind:checked={timetableOptions.sync}
-           onchange={changeTimetableOptions}
-    />
-    <label for="date">Date/time</label>
-    <input id="date" type="datetime-local" step="15"
-           bind:value={
+<div id="page-container">
+    <ul id="options">
+        <li>
+            <label for="source-input">Source</label>
+            <select bind:value={source} onchange={changeSource} id="source-input">
+                <option value="manual">Manual</option>
+                <option value="timetable">Timetable</option>
+                <option value="times-api">Times API</option>
+                <option value="trainstatuses-api">Train Statuses API</option>
+            </select>
+        </li>
+        {#if source !== "manual"}
+            <li>
+                <label for="trn-input">TRN</label>
+                <select id="trn-input" bind:value={trn} onchange={changeTRN}>
+                    {#each sourcedData.possibleTRNs as trn}
+                        <option value={trn}>{trn}</option>
+                    {/each}
+                </select>
+            </li>
+        {/if}
+        {#if source === "timetable"}
+            <li>
+                <label for="sync">Sync</label>
+                <input id="sync" type="checkbox"
+                       bind:checked={timetableOptions.sync}
+                       onchange={changeTimetableOptions}
+                />
+            </li>
+            <li>
+                <label for="date">Date/time</label>
+                <input id="date" type="datetime-local" step="15"
+                       bind:value={
                () => {
                    const date = timetableOptions.date;
                    const pad = (n: number) => n.toString().padStart(2, '0');
@@ -207,41 +216,50 @@ setTimeout(() => {
                },
                (value) => timetableOptions.date = new Date(value)
            }
-           onchange={changeTimetableOptions}
-           disabled={timetableOptions.sync}
-    />
-{/if}
-{#if source !== "timetable"}
-    <label for="from-station-input">From</label>
-    <StationSelector bind:station={sourcedData.from} id="from-station-input" stations={data.constants.STATION_CODES}/>
-{/if}
-{#if source === "manual"}
-    <label for="to-station-input">To</label>
-    <StationSelector bind:station={sourcedData.to} id="to-station-input" stations={data.constants.STATION_CODES}/>
-    <label for="current-station-input">Current</label>
-    <StationSelector bind:station={sourcedData.current} id="current-station-input" stations={data.constants.STATION_CODES}/>
-    <label for="departed-input">Departed?</label>
-    <input id="departed-input" type="checkbox" bind:checked={sourcedData.departed} />
-{/if}
-
-<div id="display-container" class:yellow={fromLineName === "yellow"} class:manual={source === "manual"}>
-    <div>
-        <div id="header">
-            <span id="next-station">Next station:</span>
-            <span id="final-station">Final station:</span>
-        </div>
-        {#if nextStations}
-            <ol
-                    id="next-stations"
-                    class:terminus={nextStations.length === 1}
-                    class:missingStations={nextStations.length > 4}
-            >
-                <li>
-                    <span>{getDisplayName(nextStations[0])}</span>
-                    <div>
-                        <div class="line-container colored"><div></div></div>
-                        <LineDot type={sourcedData.departed ? "departed" : "arrived"}
-                                 onclick={() => {
+                       onchange={changeTimetableOptions}
+                       disabled={timetableOptions.sync}
+                />
+            </li>
+        {/if}
+        {#if source !== "timetable"}
+            <li>
+                <label for="from-station-input">From</label>
+                <StationSelector bind:station={sourcedData.from} id="from-station-input" stations={data.constants.STATION_CODES}/>
+            </li>
+        {/if}
+        {#if source === "manual"}
+            <li>
+                <label for="to-station-input">To</label>
+                <StationSelector bind:station={sourcedData.to} id="to-station-input" stations={data.constants.STATION_CODES}/>
+            </li>
+            <li>
+                <label for="current-station-input">Current</label>
+                <StationSelector bind:station={sourcedData.current} id="current-station-input" stations={data.constants.STATION_CODES}/>
+            </li>
+            <li>
+                <label for="departed-input">Departed?</label>
+                <input id="departed-input" type="checkbox" bind:checked={sourcedData.departed}/>
+            </li>
+        {/if}
+    </ul>
+    <div id="display-container" class:yellow={fromLineName === "yellow"} class:manual={source === "manual"}>
+        <div>
+            <div id="header">
+                <span id="next-station">Next station:</span>
+                <span id="final-station">Final station:</span>
+            </div>
+            {#if nextStations}
+                <ol
+                        id="next-stations"
+                        class:terminus={nextStations.length === 1}
+                        class:missingStations={nextStations.length > 4}
+                >
+                    <li>
+                        <span>{getDisplayName(nextStations[0])}</span>
+                        <div>
+                            <div class="line-container colored"><div></div></div>
+                            <LineDot type={sourcedData.departed ? "departed" : "arrived"}
+                                     onclick={() => {
                                      if (sourcedData.departed) {
                                          sourcedData.current = nextStations[0];
                                          sourcedData.departed = false;
@@ -253,8 +271,8 @@ setTimeout(() => {
                                          sourcedData.departed = true;
                                      }
                                  }}
-                                 enableButton={source === "manual"}
-                                 title={
+                                     enableButton={source === "manual"}
+                                     title={
                                      sourcedData.departed
                                          ? "Arrive at this station"
                                          : (
@@ -263,102 +281,103 @@ setTimeout(() => {
                                                 : "Turn around"
                                          )
                                  }
-                        />
-                    </div>
-                </li>
-                {#each nextStations.slice(1, 3) as station, index}
-                    <li>
-                        <div class="line-container colored">
-                            {#if source === "manual"}
-                                <button onclick={() => {
+                            />
+                        </div>
+                    </li>
+                    {#each nextStations.slice(1, 3) as station, index}
+                        <li>
+                            <div class="line-container colored">
+                                {#if source === "manual"}
+                                    <button onclick={() => {
                                         sourcedData.current = nextStations[index]; // Previous "Next station"
                                         sourcedData.departed = true;
                                     }}
-                                        title="Go between these stations"
-                                        aria-label="Go between these stations"
-                                ></button>
-                            {:else}
-                                <div></div>
-                            {/if}
-                        </div>
-                        <span>{getDisplayName(station)}</span>
-                        <LineDot type="normal"
-                                 onclick={() => {
+                                            title="Go between these stations"
+                                            aria-label="Go between these stations"
+                                    ></button>
+                                {:else}
+                                    <div></div>
+                                {/if}
+                            </div>
+                            <span>{getDisplayName(station)}</span>
+                            <LineDot type="normal"
+                                     onclick={() => {
                                      sourcedData.current = station;
                                      sourcedData.departed = false;
                                  }}
-                                 enableButton={source === "manual"}
-                                 title="Arrive at this station"
-                        />
-                    </li>
-                {/each}
-                {#if nextStations.length > 3}
-                    <li>
-                        <div class="line-container continuation">
-                            {#each { length: 4  } as _}
-                                <div></div>
-                            {/each}
-                        </div>
-                        <span>{getDisplayName(sourcedData.to)}</span>
-                        <LineDot type="normal"
-                                 onclick={() => {
+                                     enableButton={source === "manual"}
+                                     title="Arrive at this station"
+                            />
+                        </li>
+                    {/each}
+                    {#if nextStations.length > 3}
+                        <li>
+                            <div class="line-container continuation">
+                                {#each { length: 4  } as _}
+                                    <div></div>
+                                {/each}
+                            </div>
+                            <span>{getDisplayName(sourcedData.to)}</span>
+                            <LineDot type="normal"
+                                     onclick={() => {
                                      sourcedData.current = sourcedData.to;
                                      sourcedData.departed = false;
                                  }}
-                                 enableButton={source === "manual"}
-                                 title="Arrive at this station"
-                        />
-                    </li>
-                {/if}
-            </ol>
-        {/if}
-        <div id="footer">
-            <span id="time">{date.toLocaleTimeString("en-GB", { hour: '2-digit', minute: '2-digit' })}</span>
-            <div id="carriages-container">
-                <ol>
-                    {#each sourcedData.capacity as capacity, carriageIndex}
-                        <li
-                                class:medium={capacity === 1}
-                                class:high={capacity === 2}
-                        >
-                            {#each [2, 1, 0] as row}
-                                {@const title = `Set capacity of carriage ${carriageIndex + 1} to ${row}`}
-                                <button
-                                        onmousedown={() => sourcedData.capacity[carriageIndex] = row}
-                                        onmouseenter={(event) => {
+                                     enableButton={source === "manual"}
+                                     title="Arrive at this station"
+                            />
+                        </li>
+                    {/if}
+                </ol>
+            {/if}
+            <div id="footer">
+                <span id="time">{date.toLocaleTimeString("en-GB", { hour: '2-digit', minute: '2-digit' })}</span>
+                <div id="carriages-container">
+                    <ol>
+                        {#each sourcedData.capacity as capacity, carriageIndex}
+                            <li
+                                    class:medium={capacity === 1}
+                                    class:high={capacity === 2}
+                            >
+                                {#each [2, 1, 0] as row}
+                                    {@const title = `Set capacity of carriage ${carriageIndex + 1} to ${row}`}
+                                    <button
+                                            onmousedown={() => sourcedData.capacity[carriageIndex] = row}
+                                            onmouseenter={(event) => {
                                             if (event.buttons === 1) sourcedData.capacity[carriageIndex] = row;
                                         }}
-                                        class:filled={capacity >= row}
-                                        {title}
-                                        aria-label={title}
-                                ></button>
-                            {/each}
-                        </li>
-                    {/each}
-                </ol>
-            </div>
-            <div id="status-message-container">
-                <div id="marquee">
-                    <span>{sourcedData.statusMessage}</span>
+                                            class:filled={capacity >= row}
+                                            {title}
+                                            aria-label={title}
+                                    ></button>
+                                {/each}
+                            </li>
+                        {/each}
+                    </ol>
                 </div>
-                <input type="text" bind:value={sourcedData.statusMessage} />
+                <div id="status-message-container">
+                    <div id="marquee">
+                        <span>{sourcedData.statusMessage}</span>
+                    </div>
+                    <input type="text" bind:value={sourcedData.statusMessage} />
+                </div>
+                <span id="route-code" title="Route code">{routeCode}</span>
+                <div id="line-color" title={`${comparison?.lineName === 'yellow' ? "Yellow" : "Green"} line`}></div>
             </div>
-            <span id="route-code" title="Route code">{routeCode}</span>
-            <div id="line-color" title={`${comparison?.lineName === 'yellow' ? "Yellow" : "Green"} line`}></div>
         </div>
     </div>
-</div>
 
-<footer>
-    <p>
-        This is a <em>recreation</em> and is not affiliated, associated, authorized, endorsed by, or in any way
-        officially connected with Tyne and Wear Transport Executive or Tyne and Wear Metro.
-    </p>
-    <p>
-        This project is open-source. You can view all of it's the code, report any issues, make suggestions or contribute
-        <a href="https://github.com/hopperelec/555-lcd-display">here</a>.
-    </p>
-</footer>
+    <footer>
+        <p>
+            This is a <em>recreation</em> and is not affiliated, associated, authorized, endorsed by, or in any way
+            officially connected with Tyne and Wear Transport Executive or Tyne and Wear Metro.
+        </p>
+        <p>
+            This project is open-source. You can view all of it's the code, report any issues, make suggestions or contribute
+            <a href="https://github.com/hopperelec/555-lcd-display">here</a>.
+        </p>
+    </footer>
+</div>
 
 <style lang="scss">
 $left-padding: 2.6rem;
@@ -367,6 +386,25 @@ $text-offset: .5rem;
 $wheel-position: .07rem;
 $backlight-color: #191919;
 
+#page-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+#options {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  list-style: none;
+
+  & > li {
+    margin: 0 .5rem;
+  }
+}
+
 #display-container {
 --line-color: #0c8;
 
@@ -374,11 +412,12 @@ $backlight-color: #191919;
     --line-color: #fd0;
   }
 
-  display: flex;
-  justify-content: center;
   background: #000;
   padding: 1rem;
   margin: 1em 0;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: auto;
 
   & > div {
     position: relative;
@@ -387,7 +426,9 @@ $backlight-color: #191919;
     font-family: Verdana, sans-serif;
     display: grid;
     grid-template-rows: 1fr auto 1fr;
+    min-width: 55rem;
     width: 55rem;
+    margin: 0 auto;
   }
 
   & input {
