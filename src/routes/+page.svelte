@@ -349,6 +349,17 @@ setTimeout(() => {
     </div>
 </div>
 
+<footer>
+    <p>
+        This is a <em>recreation</em> and is not affiliated, associated, authorized, endorsed by, or in any way
+        officially connected with Tyne and Wear Transport Executive or Tyne and Wear Metro.
+    </p>
+    <p>
+        This project is open-source. You can view all of it's the code, report any issues, make suggestions or contribute
+        <a href="https://github.com/hopperelec/555-lcd-display">here</a>.
+    </p>
+</footer>
+
 <style lang="scss">
 $left-padding: 2.6rem;
 $right-padding: 9rem;
@@ -612,5 +623,9 @@ $backlight-color: #191919;
   width: 3rem;
   background-color: var(--line-color);
   cursor: help;
+}
+
+footer {
+  text-align: center;
 }
 </style>
