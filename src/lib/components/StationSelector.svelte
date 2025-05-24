@@ -1,12 +1,12 @@
 <script lang="ts">
 let {
-    station = $bindable("SJM"),
-    stations,
-    id
+	station = $bindable("SJM"),
+	stations,
+	id,
 }: {
-    station: string,
-    stations: Record<string, string>,
-    id: string
+	station: string;
+	stations: Record<string, string>;
+	id: string;
 } = $props();
 </script>
 

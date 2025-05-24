@@ -1,15 +1,15 @@
 <script lang="ts">
 let {
-    type,
-    enableButton,
-    onclick,
-    title
+	type,
+	enableButton,
+	onclick,
+	title,
 }: {
-    type: "normal" | "arrived" | "departed",
-    enableButton: boolean,
-    onclick: () => void,
-    title: string
-} = $props()
+	type: "normal" | "arrived" | "departed";
+	enableButton: boolean;
+	onclick: () => void;
+	title: string;
+} = $props();
 </script>
 
 <div
