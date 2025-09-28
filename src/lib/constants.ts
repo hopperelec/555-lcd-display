@@ -18,10 +18,7 @@ export function getStationCode(station: string, platform?: PlatformNumber) {
 		if (platform === 1 || platform === 2) return "MTS";
 		if (platform === 3 || platform === 4) return "MTW";
 	}
-	for (const [code, name] of Object.entries(constants.STATION_CODES)) {
-		if (name.toLowerCase() === station) {
-			if (code in constants.NIS_STATIONS) return;
-			return code;
-		}
+	for (const [code, name] of Object.entries(constants.LOCATION_ABBREVIATIONS)) {
+		if (name.toLowerCase() === station && constants.PASSENGER_STOPS.includes(code)) return code;
 	}
 }

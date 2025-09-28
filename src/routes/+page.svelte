@@ -13,7 +13,7 @@ import {
 	setOptions as setTimetableOptions,
 	start as startTimetable,
 	stop as stopTimetable,
-} from "$lib/sources/timetable";
+} from "$lib/sources/timetable.js";
 import { SvelteDate } from "svelte/reactivity";
 import type { PageProps } from "./$types";
 
@@ -79,6 +79,8 @@ async function changeTimetableOptions() {
 
 // Rendering
 
+const MONUMENT_STATIONS = ["MMT","MTS","MTW","MTN","MTE"];
+
 const STAGGERED_PLATFORMS = [
 	"BFT",
 	"KSP",
@@ -91,8 +93,8 @@ const STAGGERED_PLATFORMS = [
 ];
 
 function getDisplayName(station: string) {
-	if (["MTS", "MTW"].includes(station)) return "Monument";
-	const stationName = data.constants.STATION_CODES[station] || station;
+	if (MONUMENT_STATIONS.includes(station)) return "Monument";
+	const stationName = data.constants.LOCATION_ABBREVIATIONS[station] || station;
 	if (STAGGERED_PLATFORMS.includes(station))
 		return `${stationName} ${outLine ? 2 : 1}`;
 	return stationName;
@@ -165,51 +167,22 @@ let { outLine, nextStations } = $derived.by(() => {
 	return { outLine, nextStations };
 });
 
+function findRouteCodeForLocation(location: string) {
+    for (const [code,routeLocation] of Object.entries(data.constants.ROUTE_CODES)) {
+        if (routeLocation === location) return code;
+        if (routeLocation.includes("_") && location.includes("_")) continue;
+        if (routeLocation.split("_")[0] === location.split("_")[0]) return code;
+    }
+}
+
 let routeCode = $derived.by(() => {
+    if (sourcedData.from === "SHL" && sourcedData.to === "APT") return "MASTER";
+    if (sourcedData.from === "SSS" && sourcedData.to === "SGF") return "YELLOW LINE";
 	const fallback = fromLineName === "yellow" ? "YELLOW LINE" : "GREEN LINE";
 	if (!comparison) return fallback;
-	if (sourcedData.from === "SHL" && sourcedData.to === "APT") return "MASTER";
-	let possible: {
-		from: { [key in string]?: number };
-		to: { [key in string]?: number };
-	};
-	if (comparison.lineName === "yellow") {
-		if (outLine)
-			possible = {
-				from: data.constants.ROUTE_CODES.yellow.in,
-				to: data.constants.ROUTE_CODES.yellow.out,
-			};
-		else
-			possible = {
-				from: data.constants.ROUTE_CODES.yellow.out,
-				to: data.constants.ROUTE_CODES.yellow.in,
-			};
-	}
-	if (comparison.lineName === "green") {
-		if (outLine)
-			possible = {
-				from: data.constants.ROUTE_CODES.green.in,
-				to: data.constants.ROUTE_CODES.green.out,
-			};
-		else
-			possible = {
-				from: data.constants.ROUTE_CODES.green.out,
-				to: data.constants.ROUTE_CODES.green.in,
-			};
-	}
-	const sharedInLine = {
-		...data.constants.ROUTE_CODES.green.in,
-		...data.constants.ROUTE_CODES.yellow.in,
-	};
-	const sharedOutLine = {
-		...data.constants.ROUTE_CODES.green.out,
-		...data.constants.ROUTE_CODES.yellow.out,
-	};
-	if (outLine) possible = { from: sharedInLine, to: sharedOutLine };
-	else possible = { from: sharedOutLine, to: sharedInLine };
-	const fromCode = possible.from[sourcedData.from];
-	if (!fromCode) return fallback;
-	const toCode = possible.to[sourcedData.to];
+    const fromCode = findRouteCodeForLocation(sourcedData.from);
+    if (!fromCode) return fallback;
+	const toCode = findRouteCodeForLocation(sourcedData.to);
 	if (!toCode) return fallback;
 	return `T${fromCode}v${toCode}`;
 });
@@ -274,17 +247,17 @@ setTimeout(
         {#if source !== "timetable"}
             <li>
                 <label for="from-station-input">From</label>
-                <StationSelector bind:station={sourcedData.from} id="from-station-input" stations={data.constants.STATION_CODES}/>
+                <StationSelector bind:station={sourcedData.from} id="from-station-input" stations={data.constants.LOCATION_ABBREVIATIONS}/>
             </li>
         {/if}
         {#if source === "manual"}
             <li>
                 <label for="to-station-input">To</label>
-                <StationSelector bind:station={sourcedData.to} id="to-station-input" stations={data.constants.STATION_CODES}/>
+                <StationSelector bind:station={sourcedData.to} id="to-station-input" stations={data.constants.LOCATION_ABBREVIATIONS}/>
             </li>
             <li>
                 <label for="current-station-input">Current</label>
-                <StationSelector bind:station={sourcedData.current} id="current-station-input" stations={data.constants.STATION_CODES}/>
+                <StationSelector bind:station={sourcedData.current} id="current-station-input" stations={data.constants.LOCATION_ABBREVIATIONS}/>
             </li>
             <li>
                 <label for="departed-input">Departed?</label>
