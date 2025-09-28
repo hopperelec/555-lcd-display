@@ -1,4 +1,4 @@
-import { constants, proxy } from "$lib/constants";
+import {constants, proxy, validStations} from "$lib/constants";
 import sourcedData from "$lib/sourced-data.svelte.js";
 
 type FormattedTrainTimetable = {
@@ -45,6 +45,10 @@ export async function fetchTimetabledTRNs(date: Date | undefined) {
 	sourcedData.possibleTRNs = Object.keys(timetable.trains);
 }
 
+function getStationCode(location: string) {
+    return location.split("_")[0];
+}
+
 export async function start(trn: string, opts: Options) {
 	clearInterval(syncTimeout);
 
@@ -52,29 +56,53 @@ export async function start(trn: string, opts: Options) {
 		trns: [trn],
 		date: opts.date,
 	});
+    const trainTimetable = dayTimetable.trains[trn];
     formattedTrainTimetable = [];
-    let fromStation = "";
-    for (const entry of dayTimetable.trains[trn]) {
-        const station = entry.location.split("_")[0]; // Ignore platform number
-        const destination = entry.destination.split("_")[0]; // Ignore platform number
+
+    let currentFrom = "";
+    let currentDestination = "";
+    let setCurrentFrom = false;
+    for (let i = 0; i < trainTimetable.length; i++) {
+        const entry = trainTimetable[i];
+        const station = getStationCode(entry.location);
+        if (!entry.arrivalTime) {
+            setCurrentFrom = true;
+            findDestination: for (let j = i; j < trainTimetable.length; j++) {
+                const entry = trainTimetable[j];
+                if (!entry.departureTime) {
+                    // Backtrack to find the last valid station
+                    for (let k = j; k >= 0; k--) {
+                        const entry = trainTimetable[k];
+                        const station = getStationCode(entry.location);
+                        if (validStations.includes(station)) {
+                            currentDestination = station;
+                            break findDestination;
+                        }
+                    }
+                }
+            }
+        }
+        if (!validStations.includes(station)) continue;
+        if (setCurrentFrom) {
+            currentFrom = station;
+            setCurrentFrom = false;
+        }
         if (entry.arrivalTime) {
             formattedTrainTimetable.push({
                 timeSeconds: entry.arrivalTime,
                 departed: false,
                 station,
-                from: fromStation,
-                destination,
+                from: currentFrom,
+                destination: currentDestination,
             });
-        } else {
-            fromStation = station;
         }
         if (entry.departureTime) {
             formattedTrainTimetable.push({
                 timeSeconds: entry.departureTime,
                 departed: true,
                 station,
-                from: fromStation,
-                destination,
+                from: currentFrom,
+                destination: currentDestination,
             });
         }
     }

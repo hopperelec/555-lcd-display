@@ -1,17 +1,17 @@
 <script lang="ts">
+import {validStations,constants} from "$lib/constants";
+
 let {
 	station = $bindable("SJM"),
-	stations,
 	id,
 }: {
 	station: string;
-	stations: Record<string, string>;
 	id: string;
 } = $props();
 </script>
 
 <select bind:value={station} {id}>
-    {#each Object.entries(stations) as [code, name]}
-        <option value={code}>{name}</option>
+    {#each validStations as code}
+        <option value={code}>{constants.LOCATION_ABBREVIATIONS[code]}</option>
     {/each}
 </select>

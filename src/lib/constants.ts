@@ -6,10 +6,12 @@ import type {
 
 export let proxy: MetroApiClient;
 export let constants: ApiConstants;
+export let validStations: string[];
 
 export function init(client: MetroApiClient, apiConstants: ApiConstants) {
 	proxy = client;
 	constants = apiConstants;
+    validStations = [...new Set([...constants.LINES.green, ...constants.LINES.yellow])];
 }
 
 export function getStationCode(station: string, platform?: PlatformNumber) {

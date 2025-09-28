@@ -1,7 +1,7 @@
 <script lang="ts">
 import LineDot from "$lib/components/LineDot.svelte";
 import StationSelector from "$lib/components/StationSelector.svelte";
-import { init } from "$lib/constants";
+import {init, validStations} from "$lib/constants";
 import sourcedData from "$lib/sourced-data.svelte.js";
 import {
 	setTRN as setAPIStreamTRN,
@@ -247,17 +247,17 @@ setTimeout(
         {#if source !== "timetable"}
             <li>
                 <label for="from-station-input">From</label>
-                <StationSelector bind:station={sourcedData.from} id="from-station-input" stations={data.constants.LOCATION_ABBREVIATIONS}/>
+                <StationSelector bind:station={sourcedData.from} id="from-station-input"/>
             </li>
         {/if}
         {#if source === "manual"}
             <li>
                 <label for="to-station-input">To</label>
-                <StationSelector bind:station={sourcedData.to} id="to-station-input" stations={data.constants.LOCATION_ABBREVIATIONS}/>
+                <StationSelector bind:station={sourcedData.to} id="to-station-input"/>
             </li>
             <li>
                 <label for="current-station-input">Current</label>
-                <StationSelector bind:station={sourcedData.current} id="current-station-input" stations={data.constants.LOCATION_ABBREVIATIONS}/>
+                <StationSelector bind:station={sourcedData.current} id="current-station-input"/>
             </li>
             <li>
                 <label for="departed-input">Departed?</label>
