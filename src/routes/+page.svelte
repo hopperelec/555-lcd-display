@@ -1,7 +1,7 @@
 <script lang="ts">
 import LineDot from "$lib/components/LineDot.svelte";
 import StationSelector from "$lib/components/StationSelector.svelte";
-import {init, validStations} from "$lib/constants";
+import {init} from "$lib/constants";
 import sourcedData from "$lib/sourced-data.svelte.js";
 import {
 	setTRN as setAPIStreamTRN,
@@ -22,7 +22,7 @@ init(data.proxy, data.constants);
 
 // Options
 
-let source: "manual" | "timetable" | "times-api" | "trainstatuses-api" =
+let source: "manual" | "timetable" | "times-api" | "geo-api" =
 	$state("manual");
 
 let timetableOptions = $state({
@@ -51,9 +51,9 @@ async function changeSource() {
 			if (trn) await startTimetable(trn, timetableOptions);
 			break;
 		case "times-api":
-		case "trainstatuses-api":
+		case "geo-api":
 			stopCurrentSource = stopAPIStream;
-			await startAPIStream(source);
+			await startAPIStream(source === "times-api" ? "TIMES" : "GEO");
 			if (trn) setAPIStreamTRN(trn);
 			break;
 	}
@@ -67,7 +67,7 @@ async function changeTRN() {
 			await startTimetable(trn, timetableOptions);
 			break;
 		case "times-api":
-		case "trainstatuses-api":
+		case "geo-api":
 			setAPIStreamTRN(trn);
 			break;
 	}
@@ -207,7 +207,7 @@ setTimeout(
                 <option value="manual">Manual</option>
                 <option value="timetable">Timetable</option>
                 <option value="times-api">Times API</option>
-                <option value="trainstatuses-api">Train Statuses API</option>
+                <option value="geo-api">Geo API</option>
             </select>
         </li>
         {#if source !== "manual"}

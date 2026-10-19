@@ -1,5 +1,5 @@
 import { PUBLIC_PROXY_BASE_URL } from "$env/static/public";
-import { MetroApiClient } from "metro-api-client";
+import { MetroApiClient } from "tnw-metro-api-client";
 import type { PageLoad } from "./$types";
 
 export const load: PageLoad = async () => {

@@ -12,7 +12,7 @@
 		"format-check": "biome check ."
 	},
 	"dependencies": {
-		"metro-api-client": "^3.0.1"
+		"tnw-metro-api-client": "^4.0.0"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",

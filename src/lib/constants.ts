@@ -1,8 +1,4 @@
-import type {
-	ApiConstants,
-	MetroApiClient,
-	PlatformNumber,
-} from "metro-api-client";
+import type { ApiConstants, MetroApiClient } from "tnw-metro-api-client";
 
 export let proxy: MetroApiClient;
 export let constants: ApiConstants;
@@ -14,7 +10,7 @@ export function init(client: MetroApiClient, apiConstants: ApiConstants) {
     validStations = [...new Set([...constants.LINES.green, ...constants.LINES.yellow])];
 }
 
-export function getStationCode(station: string, platform?: PlatformNumber) {
+export function getStationCode(station: string, platform?: number) {
 	station = station.toLowerCase();
 	if (station === "monument") {
 		if (platform === 1 || platform === 2) return "MTS";
